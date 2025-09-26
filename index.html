@@ -37,12 +37,39 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
-        h1 {
-            font-family: var(--font-heading);
-            color: var(--neutral-white);
+        .header {
             text-align: center;
             margin-bottom: 30px;
+        }
+
+        .club-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            border-radius: 50%;
+            border: 3px solid var(--accent-green);
+            padding: 5px;
+            background-color: var(--neutral-white);
+        }
+
+        .club-name {
+            font-family: var(--font-heading);
+            color: var(--neutral-white);
+            font-size: 1.5em;
             font-weight: 400;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .club-subtitle {
+            font-family: var(--font-body);
+            color: var(--accent-green);
+            font-size: 1.1em;
+            font-weight: 700;
+            margin: 5px 0 0 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .verification-result {
@@ -139,7 +166,11 @@
 </head>
 <body>
     <div class="container">
-        <h1 id="pageTitle">👑 Member Verification</h1>
+        <div class="header">
+            <img src="./uppc-logo.png" alt="UPPC Logo" class="club-logo">
+            <h1 class="club-name">United Panay Pickleball Club</h1>
+            <p class="club-subtitle" id="pageSubtitle">Member Verification</p>
+        </div>
         
         <div id="verificationResult" class="verification-result result-loading">
             <div class="loading-spinner"></div>
@@ -163,9 +194,9 @@
             console.log('External verifier loading...');
             console.log('Current URL:', window.location.href);
             
-            // Update title to show QR detection
-            const title = document.getElementById('pageTitle');
-            title.innerHTML = '👑 Member Verification <span class="qr-detected">(QR Code Scanned)</span>';
+            // Update subtitle to show QR detection
+            const subtitle = document.getElementById('pageSubtitle');
+            subtitle.innerHTML = 'Member Verification <span class="qr-detected">(QR Code Scanned)</span>';
             
             try {
                 // Load member data
