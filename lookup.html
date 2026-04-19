@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPPC Member Lookup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
+    <style>
+        :root {
+            --primary-dark-blue: #0C2B64;
+            --secondary-blue: #194FA8;
+            --accent-green: #ACFA0C;
+            --neutral-white: #FFFFFF;
+            --dark-text: #222222;
+            --font-heading: 'Alfa Slab One', serif;
+            --font-body: 'Oswald', sans-serif;
+            --status-active-bg: #4CAF50;
+            --status-inactive-bg: #FF5722;
+            --status-unpaid-bg: #B8860B;
+        }
+
+        body {
+            font-family: var(--font-body);
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--primary-dark-blue);
+            color: var(--neutral-white);
+            min-height: 100vh;
+        }
+
+        .container {
+            background: var(--primary-dark-blue);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .club-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            border-radius: 50%;
+            border: 3px solid var(--accent-green);
+            padding: 5px;
+            background-color: var(--neutral-white);
+        }
+
+        .club-name {
+            font-family: var(--font-heading);
+            color: var(--neutral-white);
+            font-size: 1.5em;
+            font-weight: 400;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .club-subtitle {
+            font-family: var(--font-body);
+            color: var(--accent-green);
+            font-size: 1.1em;
+            font-weight: 700;
+            margin: 5px 0 0 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .search-options {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--neutral-white);
+            border-radius: 5px;
+            color: var(--dark-text);
+            font-weight: 700;
+        }
+
+        .search-options label {
+            color: var(--dark-text);
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .search-options input[type="radio"] {
+            accent-color: var(--secondary-blue);
+            margin-right: 8px;
+        }
+
+        .search-group {
+            border: 1px solid #EEEEEE;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: var(--neutral-white);
+            margin-bottom: 20px;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group:last-child { margin-bottom: 0; }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 700;
+            color: var(--dark-text);
+        }
+
+        input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #DDDDDD;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            font-family: var(--font-body);
+            background-color: var(--neutral-white);
+            color: var(--dark-text);
+        }
+
+        input[type="text"]:focus, input[type="date"]:focus {
+            border-color: var(--secondary-blue);
+            outline: none;
+        }
+
+        .search-btn {
+            background-color: var(--accent-green);
+            color: var(--primary-dark-blue);
+            padding: 14px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 0 0 #7BAA08;
+            transition: all 0.1s ease;
+        }
+
+        .search-btn:hover {
+            background-color: #7BAA08;
+            box-shadow: 0 2px 0 0 #577706;
+            transform: translateY(2px);
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            font-weight: 700;
+        }
+
+        .result.success {
+            background-color: #387B44;
+            border: 3px solid var(--accent-green);
+            color: var(--neutral-white);
+        }
+
+        .result.error {
+            background-color: #8C3240;
+            border: 3px solid #dc3545;
+            color: var(--neutral-white);
+        }
+
+        .member-info strong {
+            color: var(--accent-green);
+        }
+
+        .status-active, .status-inactive, .status-unpaid {
+            font-weight: 900;
+            padding: 6px 12px;
+            border-radius: 4px;
+            color: var(--neutral-white);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-left: 5px;
+            display: inline-block;
+        }
+
+        .status-active {
+            background-color: var(--status-active-bg);
+            box-shadow: 0 0 8px rgba(172, 250, 12, 0.5);
+        }
+
+        .status-inactive {
+            background-color: var(--status-inactive-bg);
+        }
+
+        .status-unpaid {
+            background-color: var(--status-unpaid-bg);
+        }
+
+        #qrDisplayFrame {
+            background-color: var(--neutral-white);
+            color: var(--dark-text);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+            text-align: center;
+            display: none;
+            border: 5px solid var(--secondary-blue);
+        }
+
+        #qrDisplayFrame .qr-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        #qrDisplayFrame .qr-header img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        #qrDisplayFrame h3 {
+            font-family: var(--font-heading);
+            color: var(--primary-dark-blue);
+            margin: 0;
+            font-size: 1.4em;
+            letter-spacing: 1px;
+        }
+
+        .qr-instruction {
+            font-size: 0.9em;
+            color: var(--secondary-blue);
+            font-weight: 700;
+            margin-bottom: 15px;
+            padding: 8px;
+            border: 1px dashed var(--secondary-blue);
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        #qrCodeDisplay {
+            padding: 5px;
+            display: inline-block;
+            background-color: var(--neutral-white);
+            border-radius: 5px;
+        }
+
+        #qrCodeDisplay canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="./uppc-logo.png" alt="UPPC Logo" class="club-logo">
+            <h1 class="club-name">United Panay Pickleball Club</h1>
+            <p class="club-subtitle">Member Lookup</p>
+        </div>
+
+        <div class="search-options">
+            <label>
+                <input type="radio" name="searchType" value="memberIdName" checked>
+                Search by Membership ID and Name
+            </label>
+            <label>
+                <input type="radio" name="searchType" value="birthdateName">
+                Search by Birthdate and Name
+            </label>
+        </div>
+
+        <form id="memberForm">
+            <div id="memberIdGroup" class="search-group">
+                <div class="form-group">
+                    <label for="memberId">MEMBERSHIP ID:</label>
+                    <input type="text" id="memberId" placeholder="e.g. UPPC-00001">
+                </div>
+                <div class="form-group">
+                    <label for="nameForId">NAME:</label>
+                    <input type="text" id="nameForId" placeholder="Enter first or last name">
+                </div>
+            </div>
+
+            <div id="birthdateGroup" class="search-group" style="display: none;">
+                <div class="form-group">
+                    <label for="birthdate">BIRTHDATE:</label>
+                    <input type="date" id="birthdate">
+                </div>
+                <div class="form-group">
+                    <label for="nameForBirth">NAME:</label>
+                    <input type="text" id="nameForBirth" placeholder="Enter first or last name">
+                </div>
+            </div>
+
+            <button type="submit" class="search-btn">Verify Membership</button>
+        </form>
+
+        <div id="result" class="result">
+            <div id="resultContent"></div>
+        </div>
+
+        <div id="qrDisplayFrame">
+            <div class="qr-header">
+                <img src="./uppc-logo.png" alt="UPPC Logo">
+                <h3>UPPC Member ID</h3>
+            </div>
+            <div class="qr-instruction">
+                Please <strong>TAKE A SCREENSHOT</strong> of this code and save it to your phone's photos for quick check-in.
+            </div>
+            <div id="qrCodeDisplay"></div>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1utAVfRpyQ0C4BA8T8JYwDv_DSfoJHbxevHFSlOnuYXE/export?format=csv&gid=1285978186';
+        const VERIFIER_URL = 'https://ajtfermin.github.io/uppc/';
+
+        let memberData = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            setupSearchTypeToggle();
+            await loadMemberData();
+        });
+
+        async function loadMemberData() {
+            try {
+                const response = await fetch(SHEET_CSV_URL);
+                const csvText = await response.text();
+                memberData = parseCSV(csvText);
+            } catch (error) {
+                console.error('Error loading member data:', error);
+                showError('Failed to load member data. Please try again later.');
+            }
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.split('\n');
+            const data = [];
+            const COLUMN_MAP = {
+                memberId: 0,
+                firstName: 1,
+                lastName: 2,
+                birthdate: 3,
+                ageCategory: 4,
+                membershipDate: 5,
+                status: 6,
+                dupr: 7,
+                fullName: 8,
+            };
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                const columns = line.split(',').map(col => col.replace(/"/g, '').trim());
+                if (columns.length >= 9) {
+                    data.push({
+                        memberId: columns[COLUMN_MAP.memberId],
+                        firstName: columns[COLUMN_MAP.firstName],
+                        lastName: columns[COLUMN_MAP.lastName],
+                        fullName: columns[COLUMN_MAP.fullName],
+                        birthdate: columns[COLUMN_MAP.birthdate],
+                        ageCategory: columns[COLUMN_MAP.ageCategory],
+                        membershipDate: columns[COLUMN_MAP.membershipDate],
+                        dupr: columns[COLUMN_MAP.dupr],
+                        status: columns[COLUMN_MAP.status],
+                    });
+                }
+            }
+            return data;
+        }
+
+        function setupSearchTypeToggle() {
+            const memberIdGroup = document.getElementById('memberIdGroup');
+            const birthdateGroup = document.getElementById('birthdateGroup');
+            document.querySelectorAll('input[name="searchType"]').forEach(radio => {
+                radio.addEventListener('change', function () {
+                    if (this.value === 'memberIdName') {
+                        memberIdGroup.style.display = 'block';
+                        birthdateGroup.style.display = 'none';
+                        document.getElementById('birthdate').value = '';
+                        document.getElementById('nameForBirth').value = '';
+                    } else {
+                        memberIdGroup.style.display = 'none';
+                        birthdateGroup.style.display = 'block';
+                        document.getElementById('memberId').value = '';
+                        document.getElementById('nameForId').value = '';
+                    }
+                    document.getElementById('result').style.display = 'none';
+                    document.getElementById('qrDisplayFrame').style.display = 'none';
+                });
+            });
+        }
+
+        document.getElementById('memberForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            searchMember();
+        });
+
+        function searchMember() {
+            const searchType = document.querySelector('input[name="searchType"]:checked').value;
+            let criteria;
+
+            if (searchType === 'memberIdName') {
+                const memberId = document.getElementById('memberId').value.trim();
+                const name = document.getElementById('nameForId').value.trim();
+                if (!memberId || !name) {
+                    showError('Please enter both Member ID and Name.');
+                    return;
+                }
+                criteria = { type: 'memberIdName', memberId, name };
+            } else {
+                const birthdate = document.getElementById('birthdate').value;
+                const name = document.getElementById('nameForBirth').value.trim();
+                if (!birthdate || !name) {
+                    showError('Please enter both Birthdate and Name.');
+                    return;
+                }
+                criteria = { type: 'birthdateName', birthdate: htmlDateToSlash(birthdate), name };
+            }
+
+            const member = findMember(criteria);
+            if (member) {
+                showSuccess(member);
+                generateQRCode(member);
+            } else {
+                showError('Member not found. Please check your information and try again.');
+                document.getElementById('qrDisplayFrame').style.display = 'none';
+            }
+        }
+
+        function findMember(criteria) {
+            const nameMatch = criteria.name.toLowerCase();
+            return memberData.find(member => {
+                const memberFirstName = (member.firstName || '').toLowerCase();
+                const memberLastName = (member.lastName || '').toLowerCase();
+                const memberFullName = (member.fullName || '').toLowerCase();
+                const nameMatches = memberFirstName.includes(nameMatch) ||
+                                   memberLastName.includes(nameMatch) ||
+                                   memberFullName.includes(nameMatch);
+
+                if (criteria.type === 'memberIdName') {
+                    return member.memberId === criteria.memberId && nameMatches;
+                }
+                return normalizeDate(member.birthdate) === normalizeDate(criteria.birthdate) && nameMatches;
+            });
+        }
+
+        function htmlDateToSlash(htmlDate) {
+            if (!htmlDate) return '';
+            const [y, m, d] = htmlDate.split('-');
+            return `${parseInt(m, 10)}/${parseInt(d, 10)}/${y}`;
+        }
+
+        function normalizeDate(s) {
+            return (s || '').split('/').map(p => String(parseInt(p, 10) || p)).join('/');
+        }
+
+        function showSuccess(member) {
+            const normalizedStatus = member.status?.toLowerCase();
+            let statusClass = 'status-inactive';
+            if (normalizedStatus === 'active') statusClass = 'status-active';
+            else if (normalizedStatus === 'unpaid') statusClass = 'status-unpaid';
+            const statusText = member.status || 'Unknown';
+
+            document.getElementById('resultContent').innerHTML = `
+                <div class="member-info">
+                    <h3>✅ Member Verified</h3>
+                    <p><strong>Member ID:</strong> ${member.memberId}</p>
+                    <p><strong>Name:</strong> ${member.fullName || `${member.firstName} ${member.lastName}`}</p>
+                    <p><strong>Member Since:</strong> ${member.membershipDate || 'Not specified'}</p>
+                    <p><strong>Status:</strong> <span class="${statusClass}">${statusText}</span></p>
+                    <p><strong>Age Category:</strong> ${member.ageCategory || 'Not specified'}</p>
+                    <p><strong>DUPR ID:</strong> ${member.dupr || 'Not specified'}</p>
+                </div>
+            `;
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result success';
+            resultDiv.style.display = 'block';
+        }
+
+        function showError(message) {
+            document.getElementById('resultContent').innerHTML = `<h3>❌ ${message}</h3>`;
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result error';
+            resultDiv.style.display = 'block';
+        }
+
+        function generateQRCode(member) {
+            const qrName = member.fullName || `${member.firstName} ${member.lastName}`;
+            let qrUrl = `${VERIFIER_URL}?name=${encodeURIComponent(qrName)}`;
+            if (member.memberId) qrUrl += `&id=${encodeURIComponent(member.memberId)}`;
+            if (member.birthdate) qrUrl += `&dob=${encodeURIComponent(member.birthdate)}`;
+
+            const qrCodeDisplay = document.getElementById('qrCodeDisplay');
+            qrCodeDisplay.innerHTML = '';
+            try {
+                const qr = new QRious({
+                    element: document.createElement('canvas'),
+                    value: qrUrl,
+                    size: 220,
+                    background: '#FFFFFF',
+                    foreground: '#0C2B64',
+                    level: 'M'
+                });
+                qrCodeDisplay.appendChild(qr.canvas);
+                document.getElementById('qrDisplayFrame').style.display = 'block';
+            } catch (error) {
+                console.error('Error generating QR code:', error);
+            }
+        }
+    </script>
+</body>
+</html>
