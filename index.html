@@ -18,6 +18,7 @@
             --font-body: 'Oswald', sans-serif;
             --status-active-bg: #4CAF50;
             --status-inactive-bg: #FF5722;
+            --status-unpaid-bg: #B8860B;
         }
 
         body {
@@ -107,7 +108,7 @@
             color: var(--accent-green);
         }
 
-        .status-active, .status-inactive {
+        .status-active, .status-inactive, .status-unpaid {
             font-weight: 900;
             padding: 6px 12px;
             border-radius: 4px;
@@ -125,6 +126,10 @@
 
         .status-inactive {
             background-color: var(--status-inactive-bg);
+        }
+
+        .status-unpaid {
+            background-color: var(--status-unpaid-bg);
         }
 
         .loading-spinner {
@@ -179,7 +184,7 @@
         </div>
 
         <div class="back-link">
-            <a href="https://sites.google.com/view/unitedpanaypickleball/membership/member-verification">← Back to Member Portal</a>
+            <a href="./lookup.html">← Back to Member Lookup</a>
         </div>
     </div>
 
@@ -305,7 +310,8 @@
                     const memberLastName = (member.lastName || '').toLowerCase();
                     const memberFullName = (member.fullName || '').toLowerCase();
                     
-                    const dateMatches = member.birthdate === qrDob; // QR already in dd/mm/yyyy format
+                    const normalizeDate = s => (s || '').split('/').map(p => String(parseInt(p, 10) || p)).join('/');
+                    const dateMatches = normalizeDate(member.birthdate) === normalizeDate(qrDob);
                     const nameMatches = memberFirstName.includes(nameMatch) ||
                                        memberLastName.includes(nameMatch) ||
                                        memberFullName.includes(nameMatch);
@@ -319,7 +325,10 @@
 
         function showSuccess(member) {
             const resultDiv = document.getElementById('verificationResult');
-            const statusClass = member.status?.toLowerCase() === 'active' ? 'status-active' : 'status-inactive';
+            const normalizedStatus = member.status?.toLowerCase();
+            let statusClass = 'status-inactive';
+            if (normalizedStatus === 'active') statusClass = 'status-active';
+            else if (normalizedStatus === 'unpaid') statusClass = 'status-unpaid';
             const statusText = member.status || 'Unknown';
             
             resultDiv.className = 'verification-result result-success';
